@@ -14,9 +14,11 @@ FINDORA — Campus Lost and Found Portal
    Status: ACTIVE & TESTED
 
 2. CLOUD DEPLOYED PRODUCTION URL (PUBLIC ACCESS):
-   URL: https://findora-campus-portal.onrender.com
-   Status: Configured for Render / Railway Cloud Hosting
-   (Auto-builds from main GitHub repository via npm install && npm start)
+
+URL: https://findora-campus-lost-and-found-portal-rs4q.onrender.com
+
+Platform: Render  
+Status: Successfully deployed and accessible.
 
 ================================================================================
 PRE-CONFIGURED EVALUATION ACCOUNTS (BUILT-IN 1-CLICK DEMO BUTTONS IN UI):
