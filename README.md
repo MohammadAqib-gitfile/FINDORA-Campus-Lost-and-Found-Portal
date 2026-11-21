@@ -1,3 +1,12 @@
+FINDORA — Live Application
+
+Deployment Platform: Render
+
+Live Application URL:
+https://findora-campus-lost-and-found-portal-rs4q.onrender.com
+
+Status: Successfully deployed and accessible.
+
 # FINDORA — Campus Lost and Found Portal
 
 [![Node.js](https://img.shields.io/badge/Node.js-v20%2B-green.svg)](https://nodejs.org/)
