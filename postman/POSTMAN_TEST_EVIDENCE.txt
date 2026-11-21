@@ -1,0 +1,120 @@
+﻿================================================================================
+SAI UNIVERSITY — SCHOOL OF COMPUTING AND DATA SCIENCE
+B.Tech Computer Science | Academic Year 2026–2027
+Course: Web Technology and Internet Programming
+Deliverable 4: Postman API Testing Evidence & Execution Log
+================================================================================
+
+Target Endpoint: http://127.0.0.1:5055/api
+Test Suite: FINDORA Automated Comprehensive API Verification
+Total Test Scenarios: 24
+Total Passed: 24
+Total Failed: 0
+Overall Pass Rate: 100%
+Execution Date: November 2026
+
+--------------------------------------------------------------------------------
+TEST CASE EXECUTION LOG (ALL 24 PASSED):
+--------------------------------------------------------------------------------
+
+[01] [✓ PASS] GET /api/health
+     Assertion: Server is online and responsive
+     Response: HTTP 200 OK | Version: 1.0.0 | Status: online
+
+[02] [✓ PASS] POST /api/auth/demo/student
+     Assertion: Student authentication & JWT token generation
+     Response: HTTP 200 OK | User: Aarav Sharma | Role: student
+
+[03] [✓ PASS] POST /api/auth/demo/admin
+     Assertion: Administrator authentication & admin JWT token generation
+     Response: HTTP 200 OK | User: Campus Admin | Role: admin
+
+[04] [✓ PASS] POST /api/auth/register (Negative Test: Validation Check)
+     Assertion: Rejection of malformed registration payload missing required fields
+     Response: HTTP 400 Bad Request | "Name, email, and password are required fields."
+
+[05] [✓ PASS] GET /api/items/my-items (Negative Test: Unauthorized Access)
+     Assertion: Protected route rejects unauthenticated requests lacking Bearer token
+     Response: HTTP 401 Unauthorized | "Access denied. No authentication token provided."
+
+[06] [✓ PASS] GET /api/claims/admin/all (Negative Test: Forbidden Role Access)
+     Assertion: Administrative route blocks authenticated students lacking admin role
+     Response: HTTP 403 Forbidden | "Forbidden. Administrator privileges required."
+
+[07] [✓ PASS] GET /api/items (Search & Building Query)
+     Assertion: Filtering by query keywords and building filters returns matching listings
+     Response: HTTP 200 OK | Found matching campus listings
+
+[08] [✓ PASS] POST /api/items (Create Found Item Report)
+     Assertion: Reporting found item with structured building AB-1, floor, and secret mark
+     Response: HTTP 201 Created | Item ID generated | Status: open
+
+[09] [✓ PASS] GET /api/items/:id (Details & AI Smart Matching)
+     Assertion: Retrieve single item and calculate heuristic similarity scores against opposite listings
+     Response: HTTP 200 OK | 2 match candidates evaluated (score >= 40%)
+
+[10] [✓ PASS] POST /api/claims (Submit Claim with Proof of Ownership)
+     Assertion: Student submits proof description, contact phone, and secret mark answer
+     Response: HTTP 201 Created | Claim ID generated | Status: pending
+
+[11] [✓ PASS] PATCH /api/claims/:id/status (Review & Approve Claim)
+     Assertion: Reporter or admin approves ownership claim; item status cascades to claimed
+     Response: HTTP 200 OK | Claim status: approved | Competing claims rejected
+
+[12] [✓ PASS] GET /api/stats/dashboard (Recovery Rate Analytics)
+     Assertion: Computes real-time recovery rate %, category distribution, and building breakdown
+     Response: HTTP 200 OK | Recovery Rate: 50%+ | Trend data verified
+
+[13] [✓ PASS] GET /api/items?building=AB-1&floor=Ground (Multi-Tier Location Filter)
+     Assertion: Specific spatial query returns items isolated to AB-1 Ground Floor
+     Response: HTTP 200 OK | Matches filtered by building code and floor
+
+[14] [✓ PASS] PATCH /api/claims/:id/handover (Confirm Handover & Award 50 Pts)
+     Assertion: Verification of physical return; item updates to "received" and awards 50 Hero points
+     Response: HTTP 200 OK | Item status: received | Points awarded: +50
+
+[15] [✓ PASS] PATCH /api/claims/:id/handover (Negative Test: Duplicate Handover Exploit)
+     Assertion: Prevents duplicate handover confirmation or multiple point grants
+     Response: HTTP 400 Bad Request | "Handover has already been confirmed for this claim."
+
+[16] [✓ PASS] POST /api/claims/:id/feedback (Submit 5-Star Rating & +10 Bonus Pts)
+     Assertion: Recipient rates return with 5 stars; awards +10 bonus points to finder
+     Response: HTTP 200 OK | Rating: 5★ | Bonus: +10 pts
+
+[17] [✓ PASS] POST /api/claims/:id/feedback (Negative Test: Enforce One Rating Per Return)
+     Assertion: Rejects secondary ratings for the same return transaction
+     Response: HTTP 400 Bad Request | "Feedback has already been submitted for this return."
+
+[18] [✓ PASS] GET /api/heroes/leaderboard (Weekly Leaderboard & Honor Badges)
+     Assertion: Computes dynamic weekly points and assigns titles (Campus Hero, Kindness Champion)
+     Response: HTTP 200 OK | Leaderboard populated and sorted descending
+
+[19] [✓ PASS] GET /api/heroes/admin/logs (Admin Anti-Cheat Reward Audit Trail)
+     Assertion: Admin endpoint audits all point grants with timestamps, reasons, and item references
+     Response: HTTP 200 OK | Verified reward transaction logs retrieved
+
+[20] [✓ PASS] UI Validation: Browse Online Mode, Globe Icon, Form & Disclaimer
+     Assertion: Verifies DOM elements for external search, globe icon, and required disclaimer
+     Response: PASSED | Verified exact text: "These results come from external websites and are not verified by FINDORA."
+
+[21] [✓ PASS] External Search: Dynamic Google Search URL Generation
+     Assertion: Generates encoded Google URL with item name, category, location, and keywords
+     Response: PASSED | https://www.google.com/search?q=lost%20%22Apple%20MacBook%20Pro%2016%22...
+
+[22] [✓ PASS] External Search: Dynamic Bing Search URL Generation
+     Assertion: Generates safe encoded Bing search URL handling special characters (&, /, #)
+     Response: PASSED | https://www.bing.com/search?q=lost%20%22Titan%20Watch...
+
+[23] [✓ PASS] Suggested Searches: 5 Required Categories & Keyless Privacy
+     Assertion: Verifies presets for Laptops, Phones, Wallets, IDs, and Other; zero API keys exposed
+     Response: PASSED | All 5 presets verified with zero key leak
+
+[24] [✓ PASS] Database Isolation: External Search Causes Zero DB Mutations
+     Assertion: External web searches operate client-side without altering campus records
+     Response: PASSED | Item count before (23) == Item count after (23)
+
+--------------------------------------------------------------------------------
+CONCLUSION:
+ALL 24 TEST CASES PASSED SUCCESSFULLY (100% PASS RATE).
+THE REST API AND APPLICATION FEATURES FULLY SATISFY SAI UNIVERSITY COURSE SPECIFICATIONS.
+================================================================================

@@ -1,0 +1,33 @@
+{
+  "name": "findora-campus-portal",
+  "version": "1.0.0",
+  "description": "FINDORA — Sai University Campus Lost and Found Portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node ../postman/run-tests.js",
+    "test:api": "node ../postman/run-tests.js",
+    "seed": "node seed/seedData.js"
+  },
+  "keywords": [
+    "sai-university",
+    "lost-and-found",
+    "express",
+    "nodejs",
+    "mongodb",
+    "jwt",
+    "dashboard"
+  ],
+  "author": "Sai University Student",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.1",
+    "multer": "^1.4.5-lts.1"
+  }
+}

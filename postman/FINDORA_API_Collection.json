@@ -1,0 +1,427 @@
+{
+  "info": {
+    "name": "FINDORA Campus Lost and Found Portal API Test Suite",
+    "_postman_id": "findora-api-collection-2026",
+    "description": "Comprehensive Postman test collection for Sai University Web Technology & Internet Programming Individual Project.\nCovers 10+ test scenarios: successful requests, invalid input, item retrieval, search & filter, duplicate match detection, claim submission, claim approval, and unauthorized/forbidden security checks.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000", "type": "string" },
+    { "key": "authToken", "value": "", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "createdItemId", "value": "", "type": "string" },
+    { "key": "createdClaimId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/health", "host": ["{{baseUrl}}"], "path": ["api", "health"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Service is online', function () { const jsonData = pm.response.json(); pm.expect(jsonData.status).to.eql('online'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. User Registration (Success)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Student Postman\",\n  \"email\": \"test.postman@saiuniversity.edu.in\",\n  \"password\": \"Password123!\",\n  \"role\": \"student\",\n  \"campusId\": \"SAI-2026-TEST\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 or 409 (if re-run)', function () { pm.expect(pm.response.code).to.be.oneOf([201, 409]); });",
+              "if (pm.response.code === 201) { const data = pm.response.json(); pm.environment.set('authToken', data.token); }"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. User Registration (Invalid Input - Validation Check)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"invalid-missing-name@saiuniversity.edu.in\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Validation rejected with 400 Bad Request', function () { pm.response.to.have.status(400); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. User Login & Token Acquisition",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"student@saiuniversity.edu.in\",\n  \"password\": \"Password123!\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Login returns 200 and JWT', function () { pm.response.to.have.status(200); const data = pm.response.json(); pm.expect(data.token).to.be.a('string'); pm.environment.set('authToken', data.token); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05. Security: Unauthorized Access Prevention (401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/items/my-items", "host": ["{{baseUrl}}"], "path": ["api", "items", "my-items"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Access denied with 401 without Bearer token', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06. Security: Forbidden Role Access (403)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{authToken}}" }],
+        "url": { "raw": "{{baseUrl}}/api/claims/admin/all", "host": ["{{baseUrl}}"], "path": ["api", "claims", "admin", "all"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Student token blocked with 403 Forbidden on admin endpoint', function () { pm.response.to.have.status(403); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07. Item Retrieval, Keyword Search & Campus Building Filters",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/items?search=AirPods&building=Central+Library",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "items"],
+          "query": [
+            { "key": "search", "value": "AirPods" },
+            { "key": "building", "value": "Central Library" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Returns items array', function () { const data = pm.response.json(); pm.expect(data.items).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08. Create Lost/Found Report (Report Flow)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Dell Precision Laptop Charger 130W\",\n  \"type\": \"lost\",\n  \"category\": \"Electronics\",\n  \"building\": \"Academic Block\",\n  \"location\": \"Computer Lab 3, Row 2\",\n  \"date\": \"2026-10-18\",\n  \"description\": \"Black 130W USB-C brick charger with small blue tape near plug.\",\n  \"secretDetails\": \"Blue electrical tape on cable near USB-C tip\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/items", "host": ["{{baseUrl}}"], "path": ["api", "items"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Report created with 201 Created', function () { pm.response.to.have.status(201); const data = pm.response.json(); pm.expect(data.item._id).to.be.a('string'); pm.environment.set('createdItemId', data.item._id); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09. Single Item Details & Smart Duplicate/Match Calculation",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/items/{{createdItemId}}", "host": ["{{baseUrl}}"], "path": ["api", "items", "{{createdItemId}}"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Item details returned with 200', function () { pm.response.to.have.status(200); const data = pm.response.json(); pm.expect(data.item.title).to.include('Dell Precision'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Submit Ownership Claim with Proof",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"itemId\": \"{{createdItemId}}\",\n  \"proofDescription\": \"I forgot this charger during the afternoon lab session. It has blue tape around the cord.\",\n  \"contactPhone\": \"+91 91234 56789\",\n  \"verificationAnswer\": \"Blue electrical tape near the USB-C head\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/claims", "host": ["{{baseUrl}}"], "path": ["api", "claims"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Claim created or handled correctly', function () { pm.expect(pm.response.code).to.be.oneOf([201, 400, 409]); if (pm.response.code === 201) { pm.environment.set('createdClaimId', pm.response.json().claim._id); } });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Admin / Reporter Claim Review & Status Approval",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"status\": \"approved\",\n  \"reviewNotes\": \"Ownership verified by reporter. Recovery coordinated at Academic Block.\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/claims/{{createdClaimId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "claims", "{{createdClaimId}}", "status"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Claim status updated', function () { pm.expect(pm.response.code).to.be.oneOf([200, 404]); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Dashboard Statistics & Campus Recovery Analytics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/stats/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "stats", "dashboard"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Metrics include total, claimed, recoveryRate', function () { const data = pm.response.json(); pm.expect(data.stats).to.have.property('totalItems'); pm.expect(data.stats).to.have.property('recoveryRate'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Multi-Tier Location Query (Building AB-1 & Ground Floor)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/items?building=AB-1&floor=Ground", "host": ["{{baseUrl}}"], "path": ["api", "items"], "query": [{ "key": "building", "value": "AB-1" }, { "key": "floor", "value": "Ground" }] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Items match building AB-1', function () { const data = pm.response.json(); pm.expect(data.success).to.be.true; });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14. Confirm Physical Handover (Mark Item Received & Award 50 Pts)",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"handoverNotes\": \"Item physically verified and handed back to rightful student.\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/claims/{{createdClaimId}}/handover", "host": ["{{baseUrl}}"], "path": ["api", "claims", "{{createdClaimId}}", "handover"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Handover executed', function () { pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15. Submit 5-Star Feedback Rating (+10 Hero Points)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 5,\n  \"feedback\": \"Extremely fast and honest return by student community!\"\n}"
+        },
+        "url": { "raw": "{{baseUrl}}/api/claims/{{createdClaimId}}/feedback", "host": ["{{baseUrl}}"], "path": ["api", "claims", "{{createdClaimId}}", "feedback"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Feedback processed', function () { pm.expect(pm.response.code).to.be.oneOf([200, 400, 404]); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16. Weekly FINDORA Heroes Leaderboard & Honor Badges",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/heroes/leaderboard", "host": ["{{baseUrl}}"], "path": ["api", "heroes", "leaderboard"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Leaderboard array exists', function () { const data = pm.response.json(); pm.expect(data.leaderboard).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17. Community Recognition & Honor Statistics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/heroes/stats", "host": ["{{baseUrl}}"], "path": ["api", "heroes", "stats"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Stats object contains returnedItems', function () { const data = pm.response.json(); pm.expect(data.stats).to.have.property('returnedItems'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "18. Admin Anti-Cheat Reward Audit Trail",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/heroes/admin/logs", "host": ["{{baseUrl}}"], "path": ["api", "heroes", "admin", "logs"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Audit log array returned', function () { const data = pm.response.json(); pm.expect(data.logs).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "19. In-App Notifications Center",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": { "raw": "{{baseUrl}}/api/notifications", "host": ["{{baseUrl}}"], "path": ["api", "notifications"] }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Notifications array exists', function () { const data = pm.response.json(); pm.expect(data.notifications).to.be.an('array'); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+================================================================================
+SAI UNIVERSITY — SCHOOL OF COMPUTING AND DATA SCIENCE
+B.Tech Computer Science | Academic Year 2026–2027
+Course: Web Technology and Internet Programming
+Deliverable 2: Deployed Application & Live Demonstration URL
+================================================================================
+
+PROJECT TITLE:
+FINDORA — Campus Lost and Found Portal
+
+1. LOCAL APPLICATION LINK (FOR DEMONSTRATION & VIVA EVALUATION):
+   URL: http://localhost:5000
+   Health Endpoint: http://localhost:5000/api/health
+   Status: ACTIVE & TESTED
+
+2. CLOUD DEPLOYED PRODUCTION URL (PUBLIC ACCESS):
+   URL: https://findora-campus-portal.onrender.com
+   Status: Configured for Render / Railway Cloud Hosting
+   (Auto-builds from main GitHub repository via npm install && npm start)
+
+================================================================================
+PRE-CONFIGURED EVALUATION ACCOUNTS (BUILT-IN 1-CLICK DEMO BUTTONS IN UI):
+================================================================================
+
+A. CAMPUS ADMINISTRATOR ACCOUNT:
+   - Email:    admin@saiuniversity.edu.in
+   - Password: Password123!
+   - Role:     admin
+   - Access:   Control Center, Moderation, Claim Approval, Handover Confirmation,
+               Analytics Charts, Reward Anti-Cheat Audit Logs.
+
+B. STUDENT ACCOUNT (AARAV SHARMA):
+   - Email:    student@saiuniversity.edu.in
+   - Password: Password123!
+   - Role:     student
+   - Access:   Browse Items, Search AB-1 / AB-2, Report Lost/Found, Submit Claims,
+               Earn Hero Points, View Personal Dashboard, 5-Star Feedback.
+
+C. STUDENT ACCOUNT 2 (DIYA KRISHNAN):
+   - Email:    diya.k@saiuniversity.edu.in
+   - Password: Password123!
+   - Role:     student
+
+*(Tip: In the web browser, click "Log in" and simply click the "👤 Demo Student" or 
+ "🛡️ Demo Admin" buttons for instant 1-click authentication during the viva).*
+
+================================================================================
+CORE FEATURE DEMONSTRATION FLOW FOR EVALUATOR:
+================================================================================
+1. Browse Campus Listings:
+   Filter by Building (AB-1, AB-2, Central Library, Dining Commons), Floor,
+   and Category.
+
+2. Browse Online / Search Beyond Campus:
+   Click "🌐 Browse Online" mode toggle. Select item category (e.g. Laptops,
+   Mobile Phones, Wallets, IDs), enter item details, and click "Search on Google ↗"
+   or "Search on Bing ↗" to view generated external queries with full disclaimer.
+
+3. Report Item Flow:
+   Click "+ Report an Item". Select "I Found Something (+5 Hero Pts)". Choose
+   AB-1, Floor, Room, and add a secret verification mark.
+
+4. Smart Duplicate & Cross-Match Heuristic:
+   Open any item detail. The system automatically computes and displays 
+   similarity percentage scores against existing opposite-type reports.
+
+5. Claim & Handover Verification:
+   Claimant submits proof -> Admin reviews and approves -> Handover is confirmed ->
+   Item status updates to "✓ Received" -> Finder earns 50 Hero points ->
+   Claimant rates return with 1-5 stars (+10 bonus points).
+
+6. Community Heroes Leaderboard & Anti-Cheat:
+   Navigate to "FINDORA Heroes" to see dynamic weekly rankings and honor badges.
+================================================================================

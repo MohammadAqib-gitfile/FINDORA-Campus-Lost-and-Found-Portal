@@ -1,0 +1,50 @@
+================================================================================
+SAI UNIVERSITY — SCHOOL OF COMPUTING AND DATA SCIENCE
+B.Tech Computer Science | Academic Year 2026–2027
+Course: Web Technology and Internet Programming
+Deliverable 1: GitHub Repository & Source Code Documentation
+================================================================================
+
+PROJECT TITLE:
+FINDORA — Campus Lost and Found Portal
+
+GITHUB REPOSITORY LINK:
+https://github.com/sai-university-cs/FINDORA-Campus-Lost-and-Found-Portal
+
+REPOSITORY ACCESS:
+- Visibility: Public (or accessible to instructor upon invite)
+- Primary Branch: main / master
+- Source Code Directory: /Source_Code
+
+HOW TO CLONE AND RUN THE REPOSITORY:
+1. Clone the repository:
+   git clone https://github.com/sai-university-cs/FINDORA-Campus-Lost-and-Found-Portal.git
+   cd FINDORA-Campus-Lost-and-Found-Portal
+
+2. Install dependencies:
+   npm install
+
+3. Populate initial campus items (12+ records) & demo accounts:
+   npm run seed
+
+4. Start the application:
+   npm start
+
+5. Open in browser:
+   http://localhost:5000
+
+6. Run the 24-test automated API test suite:
+   npm run test:api
+
+LOCAL REPOSITORY AUDIT DETAILS:
+- Last Commit: dfbbb51
+- Commit Message: "Update README with 24-test coverage, Browse Online feature, and FINDORA Heroes documentation"
+- Working Directory: Clean (No uncommitted changes)
+- Pre-configured .gitignore: node_modules/, .env, uploads/*, *.log
+
+STUDENT ACADEMIC INTEGRITY DECLARATION:
+This is an individual project developed by the student in accordance with the
+Sai University Web Technology and Internet Programming project guidelines.
+AI assistance was utilized strictly for code scaffolding, documentation structure,
+and automated test suite generation as disclosed in Section 9 of the Project Report.
+================================================================================

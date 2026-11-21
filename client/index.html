@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FINDORA — Sai University Campus Lost and Found Portal. Report lost belongings, search listings by building and floor, submit claims, and earn community Hero points." />
+  <title>FINDORA | Campus Lost & Found Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="js/api.js" defer></script>
+  <script src="js/charts.js" defer></script>
+  <script src="js/app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- TOPBAR NAVIGATION (Clean White & Blue SaaS) -->
+    <header class="topbar">
+      <a class="brand" href="#" id="brandLogo" aria-label="FINDORA home">
+        <span class="brand-mark">F</span>
+        <span>FINDORA</span>
+        <span class="brand-sub">SAI UNIVERSITY</span>
+      </a>
+
+      <!-- Navigation Sections -->
+      <nav class="main-nav" id="mainNav" aria-label="Main navigation">
+        <button type="button" class="nav-link active" id="navHome">Home</button>
+        <button type="button" class="nav-link" id="navBrowse">Explore Items</button>
+        <button type="button" class="nav-link" id="navReceived">Received Items</button>
+        <button type="button" class="nav-link" id="navOnlineSearch">🌐 Browse Online</button>
+        <button type="button" class="nav-link" id="navReport">Report an Item</button>
+        <button type="button" class="nav-link" id="navHeroes">FINDORA Heroes</button>
+        <button type="button" class="nav-link" id="navUserDash" hidden>My Dashboard</button>
+        <button type="button" class="nav-link" id="navAdminDash" hidden>Admin Panel</button>
+      </nav>
+
+      <div class="top-actions">
+        <!-- Guest State -->
+        <div id="guestActions" style="display: flex; gap: 8px;">
+          <button class="btn btn-quiet" id="loginBtn">Log in</button>
+          <button class="btn btn-primary" id="signupBtn">Sign up <span aria-hidden="true">↗</span></button>
+        </div>
+
+        <!-- Authenticated State -->
+        <div id="userActions" class="user-menu-wrap" style="display: none;">
+          <!-- Notification Bell -->
+          <div class="notif-wrap">
+            <button class="notif-btn" id="notifBtn" aria-label="Notifications" title="Notifications">
+              🔔
+              <span class="notif-badge" id="notifBadge" style="display: none;">0</span>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown" style="display: none;">
+              <div class="notif-header">
+                <h4>Campus Alerts</h4>
+                <button type="button" id="markAllReadBtn">Mark all read</button>
+              </div>
+              <div class="notif-list" id="notifList">
+                <div class="notif-empty">No new notifications</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Pill with Points -->
+          <div class="user-pill" id="userPill" title="Open user dashboard">
+            <img id="userAvatar" src="https://api.dicebear.com/7.x/initials/svg?seed=User" alt="Avatar" />
+            <div>
+              <span id="userNameDisplay" style="display: block; line-height: 1.2;">Student</span>
+              <span id="userPointsDisplay" style="font-size: 10px; color: var(--primary-blue); font-weight: 800;">0 pts</span>
+            </div>
+            <span class="role-badge student" id="userRoleBadge">Student</span>
+          </div>
+
+          <button class="btn btn-outline btn-sm" id="logoutBtn">Log out</button>
+        </div>
+
+        <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" aria-expanded="false">☰</button>
+      </div>
+    </header>
+
+    <!-- MAIN APP CONTENT AREA -->
+    <main>
+      <!-- ==========================================================
+           1. HOME VIEW
+           ========================================================== -->
+      <div id="homeView">
+        <!-- HERO SECTION (Premium Clean SaaS Aesthetic) -->
+        <section class="hero">
+          <div class="hero-copy">
+            <div class="eyebrow"><span class="pulse-dot"></span> SAI UNIVERSITY LOST & FOUND</div>
+            <h1>Lost something on campus?<br><span>Let's bring it back.</span></h1>
+            <p class="hero-description">The official digital lost and found for Sai University. Report misplaced items, search structured buildings and floors, submit verified claims, and earn FINDORA Hero Points for community honesty.</p>
+            
+            <!-- Search Mode Switcher Tabs (Campus vs Online) -->
+            <div class="search-mode-tabs" role="tablist" aria-label="Search Mode">
+              <button type="button" class="search-mode-tab active" id="tabCampusSearch" role="tab" aria-selected="true" aria-controls="campusSearchPanel">
+                <span class="mode-tab-icon">🏫</span>
+                <span>Search Campus</span>
+              </button>
+              <button type="button" class="search-mode-tab" id="tabOnlineSearch" role="tab" aria-selected="false" aria-controls="onlineSearchPanel">
+                <span class="mode-tab-icon">🌐</span>
+                <span>Browse Online</span>
+                <span class="mode-pill-badge">Beyond Campus</span>
+              </button>
+            </div>
+
+            <!-- MODE 1: CAMPUS SEARCH PANEL -->
+            <div id="campusSearchPanel" class="search-mode-panel active">
+              <form class="search-box" id="searchForm">
+                <span class="search-icon" aria-hidden="true">⌕</span>
+                <input id="searchInput" type="search" placeholder="Search by item, AB-1, AB-2, calculator, ID card, floor..." aria-label="Search reported items" />
+                <button type="submit" aria-label="Search">→</button>
+              </form>
+
+              <div class="hero-links">
+                <a href="#items" id="heroExploreLink">Explore active listings <span>↗</span></a>
+                <span class="separator">·</span>
+                <a href="#" id="heroReportLink">Report lost or found belongings</a>
+                <span class="separator">·</span>
+                <a href="#" id="heroSwitchToOnlineLink" style="font-weight: 700;">🌐 Search Beyond Campus <span>↗</span></a>
+              </div>
+            </div>
+
+            <!-- MODE 2: BROWSE ONLINE / SEARCH BEYOND CAMPUS PANEL -->
+            <div id="onlineSearchPanel" class="search-mode-panel" style="display: none;">
+              <div class="online-search-card">
+                <div class="online-card-topbar">
+                  <div class="online-title-group">
+                    <span class="globe-icon-badge">🌐</span>
+                    <div>
+                      <h3 class="online-card-title">Search Beyond Campus</h3>
+                      <p class="online-card-subtitle">Search public lost-and-found listings across the web, community classifieds, and city portals.</p>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-quiet btn-sm back-to-findora-btn" id="backToCampusBtn" title="Return to FINDORA campus search">
+                    ← Back to FINDORA
+                  </button>
+                </div>
+
+                <!-- Mandatory Disclaimer Notice -->
+                <div class="online-disclaimer-banner" role="alert">
+                  <span class="disclaimer-icon" aria-hidden="true">ℹ️</span>
+                  <div class="disclaimer-text">
+                    <strong>Notice:</strong> These results come from external websites and are not verified by FINDORA.
+                  </div>
+                </div>
+
+                <!-- Online Search Form -->
+                <form id="onlineSearchForm" class="online-search-form" autocomplete="off">
+                  <div class="online-form-row">
+                    <div class="online-form-field flex-2">
+                      <label for="onlineItemName">Item Name <span class="required">*</span></label>
+                      <input type="text" id="onlineItemName" placeholder="e.g. Apple MacBook Pro, Titan Watch, Blue Wallet" required />
+                    </div>
+                    <div class="online-form-field flex-1">
+                      <label for="onlineCategory">Item Category</label>
+                      <select id="onlineCategory">
+                        <option value="All">All Categories</option>
+                        <option value="Laptops">Laptops & Computers</option>
+                        <option value="Mobile Phones">Mobile Phones & Tablets</option>
+                        <option value="Wallets">Wallets, Bags & Purses</option>
+                        <option value="Identity Cards">Identity Cards & Documents</option>
+                        <option value="Electronics">Other Electronics</option>
+                        <option value="Accessories">Jewelry & Accessories</option>
+                        <option value="Books">Books & Notes</option>
+                        <option value="Other">Other Belongings</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="online-form-row">
+                    <div class="online-form-field flex-1">
+                      <label for="onlineLocation">City or Location</label>
+                      <input type="text" id="onlineLocation" value="Chennai" placeholder="e.g. Chennai, OMR, Kelambakkam" />
+                    </div>
+                    <div class="online-form-field flex-1">
+                      <label for="onlineKeywords">Optional Keywords</label>
+                      <input type="text" id="onlineKeywords" placeholder="e.g. metro, bus stand, serial number, black color" />
+                    </div>
+                    <div class="online-form-field flex-auto">
+                      <label>Search Engine</label>
+                      <div class="engine-toggle-group">
+                        <label class="engine-radio-label active" id="engineGoogleLabel">
+                          <input type="radio" name="searchEngine" value="google" id="engineGoogle" checked />
+                          <span>Google</span>
+                        </label>
+                        <label class="engine-radio-label" id="engineBingLabel">
+                          <input type="radio" name="searchEngine" value="bing" id="engineBing" />
+                          <span>Bing</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Live Query Preview -->
+                  <div class="query-preview-container">
+                    <div class="query-preview-label">
+                      <span>Generated Search Query:</span>
+                      <small id="queryPreviewEngine">Google Web Search</small>
+                    </div>
+                    <div class="query-preview-box" id="queryPreviewBox">
+                      lost "Apple MacBook Pro" Chennai
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="online-actions-row">
+                    <button type="submit" class="btn btn-primary" id="btnLaunchExternalSearch">
+                      <span class="btn-icon">🌐</span>
+                      <span id="externalSearchBtnText">Search on Google ↗</span>
+                    </button>
+                    <button type="button" class="btn btn-outline" id="btnResetOnlineForm">
+                      Clear Form
+                    </button>
+                    <button type="button" class="btn btn-quiet" id="btnBackToCampusBottom">
+                      ← Back to FINDORA
+                    </button>
+                  </div>
+                </form>
+
+                <!-- Useful Suggested Searches -->
+                <div class="suggested-searches-section">
+                  <div class="suggested-header">
+                    <span class="suggested-label">Useful Suggested Searches</span>
+                    <small>Click to auto-populate and review or launch:</small>
+                  </div>
+                  <div class="suggested-searches-grid">
+                    <div class="suggested-card" data-suggest="laptop" tabindex="0" role="button" aria-label="Suggested search: Lost laptops">
+                      <div class="suggested-card-icon">💻</div>
+                      <div class="suggested-card-content">
+                        <strong>Lost Laptops</strong>
+                        <small>MacBook, Dell, ThinkPad serial searches</small>
+                      </div>
+                      <div class="suggested-card-actions">
+                        <button type="button" class="btn-suggest-use" title="Populate form">Use</button>
+                        <button type="button" class="btn-suggest-go" title="Search immediately">↗</button>
+                      </div>
+                    </div>
+
+                    <div class="suggested-card" data-suggest="phone" tabindex="0" role="button" aria-label="Suggested search: Lost mobile phones">
+                      <div class="suggested-card-icon">📱</div>
+                      <div class="suggested-card-content">
+                        <strong>Lost Mobile Phones</strong>
+                        <small>iPhone, Samsung, IMEI & city recovery</small>
+                      </div>
+                      <div class="suggested-card-actions">
+                        <button type="button" class="btn-suggest-use" title="Populate form">Use</button>
+                        <button type="button" class="btn-suggest-go" title="Search immediately">↗</button>
+                      </div>
+                    </div>
+
+                    <div class="suggested-card" data-suggest="wallet" tabindex="0" role="button" aria-label="Suggested search: Lost wallets">
+                      <div class="suggested-card-icon">👛</div>
+                      <div class="suggested-card-content">
+                        <strong>Lost Wallets</strong>
+                        <small>Purses, debit cards & document pouches</small>
+                      </div>
+                      <div class="suggested-card-actions">
+                        <button type="button" class="btn-suggest-use" title="Populate form">Use</button>
+                        <button type="button" class="btn-suggest-go" title="Search immediately">↗</button>
+                      </div>
+                    </div>
+
+                    <div class="suggested-card" data-suggest="idcard" tabindex="0" role="button" aria-label="Suggested search: Lost identity cards">
+                      <div class="suggested-card-icon">🪪</div>
+                      <div class="suggested-card-content">
+                        <strong>Lost Identity Cards</strong>
+                        <small>Student IDs, Aadhaar & driving licenses</small>
+                      </div>
+                      <div class="suggested-card-actions">
+                        <button type="button" class="btn-suggest-use" title="Populate form">Use</button>
+                        <button type="button" class="btn-suggest-go" title="Search immediately">↗</button>
+                      </div>
+                    </div>
+
+                    <div class="suggested-card" data-suggest="other" tabindex="0" role="button" aria-label="Suggested search: Other belongings">
+                      <div class="suggested-card-icon">🎒</div>
+                      <div class="suggested-card-content">
+                        <strong>Other Belongings</strong>
+                        <small>Keys, spectacles, backpacks & water bottles</small>
+                      </div>
+                      <div class="suggested-card-actions">
+                        <button type="button" class="btn-suggest-use" title="Populate form">Use</button>
+                        <button type="button" class="btn-suggest-go" title="Search immediately">↗</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Privacy & Transparency Statement -->
+                <div class="online-privacy-note">
+                  🔒 <strong>Privacy Guarantee:</strong> Searches open directly in your browser. FINDORA does not scrape private websites, store your search query, or transmit any user credentials.
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-proof">
+              <div class="avatar-stack"><span>A</span><span>D</span><span>S</span><span>+</span></div>
+              <div><strong>Sai University Verified Community</strong><small>Structured building zones & verified handovers.</small></div>
+            </div>
+          </div>
+
+          <!-- Modern University SaaS Visual Card -->
+          <div class="hero-visual">
+            <div class="visual-card-center">
+              <div class="visual-building-row">
+                <span class="visual-building-badge">AB-1</span>
+                <span class="visual-building-badge" style="background: #F1F5F9; color: #475569; border-color: #E2E8F0;">2nd Floor</span>
+                <span class="visual-building-badge" style="background: #ECFDF5; color: #047857; border-color: #A7F3D0;">Classroom 204</span>
+              </div>
+              <h3 style="font-size: 18px; margin: 0 0 6px;">Casio FX-991EX Calculator</h3>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 14px;">Found on bench after morning calculus lecture. Verified serial and student marks.</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 10px;">
+                <span class="status-pill found" style="position: static;">FOUND</span>
+                <span style="font-size: 11px; font-weight: 700; color: var(--primary-blue);">+50 Hero Points for Return</span>
+              </div>
+            </div>
+            
+            <div class="floating-hero-card fcard-top">
+              <span class="fcard-icon green">✓</span>
+              <div><strong>Verified Handover</strong><small>Safe campus recovery.</small></div>
+            </div>
+            <div class="floating-hero-card fcard-bottom">
+              <span class="fcard-icon blue">★</span>
+              <div><strong>5-Star Return Rating</strong><small>Honesty recognized & rewarded.</small></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CATEGORIES SECTION -->
+        <section class="category-section" aria-label="Browse by category">
+          <div class="section-heading compact">
+            <div>
+              <span class="eyebrow">BROWSE BY CATEGORY</span>
+              <h2>What are you looking for?</h2>
+            </div>
+            <a class="text-link" href="#items" id="allCategoriesLink">View all categories <span>↗</span></a>
+          </div>
+          <div class="category-grid" id="categoryGrid">
+            <button class="category-card selected" data-category="All">
+              <span class="category-icon">✳</span>
+              <span>All items</span>
+              <small>Everything reported</small>
+            </button>
+            <button class="category-card" data-category="Electronics">
+              <span class="category-icon">▣</span>
+              <span>Electronics</span>
+              <small>Phones, chargers, earbuds</small>
+            </button>
+            <button class="category-card" data-category="Accessories">
+              <span class="category-icon">◇</span>
+              <span>Accessories</span>
+              <small>Watches, keys, wallets</small>
+            </button>
+            <button class="category-card" data-category="Books">
+              <span class="category-icon">▤</span>
+              <span>Books & notes</span>
+              <small>Textbooks, binders, notes</small>
+            </button>
+            <button class="category-card" data-category="ID & Cards">
+              <span class="category-icon">▰</span>
+              <span>ID & Cards</span>
+              <small>Student IDs, library cards</small>
+            </button>
+            <button class="category-card" data-category="Other">
+              <span class="category-icon">＋</span>
+              <span>Clothing & Other</span>
+              <small>Bottles, jackets, sports gear</small>
+            </button>
+          </div>
+        </section>
+
+        <!-- ITEMS LISTING SECTION WITH STRUCTURED BUILDING FILTERS -->
+        <section class="items-section" id="items">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">CAMPUS INVENTORY</span>
+              <h2>Active Listings <span class="count-badge" id="itemCount">0</span></h2>
+              <p>Filter by structured building codes, floors, and specific location types.</p>
+            </div>
+            
+            <!-- Structured Search & Location Filters -->
+            <div class="item-controls">
+              <!-- Type Filter -->
+              <select id="typeFilter" aria-label="Filter by listing type">
+                <option value="All">All Types (Lost & Found)</option>
+                <option value="lost">Lost Items Only</option>
+                <option value="found">Found Items Only</option>
+              </select>
+
+              <!-- Building Code Filter (AB-1, AB-2, AB-3 configurable) -->
+              <select id="buildingFilter" aria-label="Filter by campus building">
+                <option value="All">All Buildings</option>
+                <option value="AB-1">AB-1 (Academic Block 1)</option>
+                <option value="AB-2">AB-2 (Academic Block 2)</option>
+                <option value="AB-3">AB-3 (Academic Block 3)</option>
+                <option value="Central Library">Central Library</option>
+                <option value="Dining Commons">Dining Commons</option>
+                <option value="Sports Complex">Sports Complex</option>
+                <option value="Student Hostels">Student Hostels</option>
+                <option value="Auditorium">Auditorium</option>
+                <option value="Other">Other Campus Areas</option>
+              </select>
+
+              <!-- Floor Filter -->
+              <select id="floorFilter" aria-label="Filter by floor">
+                <option value="All">All Floors</option>
+                <option value="Ground">Ground Floor</option>
+                <option value="First">First Floor</option>
+                <option value="Second">Second Floor</option>
+                <option value="Third">Third Floor</option>
+              </select>
+
+              <!-- Specific Location Type Filter -->
+              <select id="locationTypeFilter" aria-label="Filter by location type">
+                <option value="All">All Location Types</option>
+                <option value="Classroom">Classroom</option>
+                <option value="Laboratory">Laboratory</option>
+                <option value="Corridor">Corridor</option>
+                <option value="Library">Library</option>
+                <option value="Cafeteria">Cafeteria</option>
+                <option value="Other">Other Specific Spot</option>
+              </select>
+
+              <!-- Sort Filter -->
+              <select id="sortFilter" aria-label="Sort items">
+                <option value="recent">Most Recent</option>
+                <option value="oldest">Oldest First</option>
+                <option value="az">Name A–Z</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Items Grid -->
+          <div class="items-grid" id="itemsGrid">
+            <!-- Dynamically populated by app.js -->
+          </div>
+
+          <!-- Empty State -->
+          <div class="empty-state" id="emptyState" style="display: none;">
+            <span>⌕</span>
+            <h3>No matching listings found</h3>
+            <p>Try clearing your building or floor filters to view all campus reports.</p>
+            <button class="btn btn-primary" id="clearFiltersBtn">Clear all filters</button>
+          </div>
+        </section>
+
+        <!-- COMMUNITY REPORT BANNER -->
+        <section class="community-banner" id="reportBanner">
+          <div>
+            <span class="eyebrow">COMMUNITY INTEGRITY</span>
+            <h2>Found something on campus?<br><em>Be someone's hero and earn 50 points.</em></h2>
+            <p>Log the item with the building code and floor. Reconnecting an item takes less than a minute.</p>
+          </div>
+          <button class="btn btn-light" id="bannerReportBtn">Report an Item <span>↗</span></button>
+        </section>
+
+        <!-- HOW IT WORKS -->
+        <section class="how-section" id="how">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">CAMPUS WORKFLOW</span>
+              <h2>How FINDORA Works in 3 Verified Steps</h2>
+            </div>
+          </div>
+          <div class="steps-grid">
+            <article class="step-card">
+              <span class="step-number">01</span>
+              <div class="step-symbol">⌕</div>
+              <h3>Report with Location</h3>
+              <p>Tag the exact building (AB-1, AB-2, AB-3), floor, and room, plus optional secret verification marks.</p>
+            </article>
+            <article class="step-card">
+              <span class="step-number">02</span>
+              <div class="step-symbol">↗</div>
+              <h3>Submit Verified Claim</h3>
+              <p>Claimants provide unique proof of ownership and secret answers for owner or security evaluation.</p>
+            </article>
+            <article class="step-card">
+              <span class="step-number">03</span>
+              <div class="step-symbol">★</div>
+              <h3>Handover & Hero Points</h3>
+              <p>Confirm the handover to mark the item Received. Finders earn 50 Hero points and recipient 1-5 star ratings.</p>
+            </article>
+          </div>
+        </section>
+      </div>
+
+      <!-- ==========================================================
+           DEDICATED RECEIVED & RETURNED ITEMS VIEW
+           ========================================================== -->
+      <div id="receivedView" class="dashboard-view" style="display: none;">
+        <div class="dash-header">
+          <div>
+            <span class="eyebrow"><span class="pulse-dot"></span> VERIFIED HANDOVERS</span>
+            <h2>Received &amp; Returned Items Registry</h2>
+            <p>Official record of campus belongings reunited with owners, verified handovers, and student ratings.</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-outline" id="refreshReceivedBtn">↻ Refresh</button>
+          </div>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="metrics-grid" style="margin-bottom: 22px;">
+          <div class="metric-card">
+            <span class="metric-label">Total Returned</span>
+            <div class="metric-val" id="receivedMetricTotal">0</div>
+            <span class="metric-sub">Handovers completed</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Verification Rate</span>
+            <div class="metric-val" style="color: #059669;">100%</div>
+            <span class="metric-sub">Admin &amp; student confirmed</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Average Return Rating</span>
+            <div class="metric-val" id="receivedMetricRating">5.0 ★</div>
+            <span class="metric-sub">Recipient satisfaction</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Hero Points Awarded</span>
+            <div class="metric-val" id="receivedMetricPoints">0</div>
+            <span class="metric-sub">+50 pts per verified return</span>
+          </div>
+        </div>
+
+        <!-- Table Panel with Filters -->
+        <div class="table-panel">
+          <div class="table-header-bar" style="flex-wrap: wrap; gap: 12px;">
+            <h3>Completed Handover Registry</h3>
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <input type="search" id="receivedSearchInput" placeholder="Filter returned items..." style="font-size: 12px; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border);" />
+              <select id="receivedBuildingFilter" style="font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
+                <option value="All">All Buildings</option>
+                <option value="AB-1">AB-1 (Academic Block 1)</option>
+                <option value="AB-2">AB-2 (Academic Block 2)</option>
+                <option value="AB-3">AB-3 (Academic Block 3)</option>
+                <option value="Central Library">Central Library</option>
+                <option value="Dining Commons">Dining Commons</option>
+                <option value="Student Hostels">Student Hostels</option>
+                <option value="Other">Other Area</option>
+              </select>
+              <select id="receivedCategoryFilter" style="font-size: 12px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
+                <option value="All">All Categories</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Accessories">Accessories</option>
+                <option value="Books">Books</option>
+                <option value="ID & Cards">ID & Cards</option>
+                <option value="Clothing">Clothing</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>Item Title</th>
+                <th>Category</th>
+                <th>Building &amp; Location</th>
+                <th>Handover Date</th>
+                <th>Reported By</th>
+                <th>Handover Status</th>
+                <th>Rating &amp; Feedback</th>
+              </tr>
+            </thead>
+            <tbody id="receivedItemsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+          <div id="receivedItemsEmpty" class="empty-state" style="display: none; padding: 30px;">
+            <span>🤝</span>
+            <h3>No completed returns found</h3>
+            <p>Items marked as Received after verified physical handover will appear here.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================================
+           2. FINDORA HEROES & LEADERBOARD VIEW
+           ========================================================== -->
+      <div id="heroesView" class="dashboard-view">
+        <div class="heroes-hero-banner">
+          <div>
+            <span class="eyebrow">HONESTY & REPUTATION</span>
+            <h2>FINDORA Campus Heroes Leaderboard</h2>
+            <p>Recognizing students who report and return lost belongings. Earn points, badges, and weekly campus honors.</p>
+          </div>
+          <div style="text-align: right;">
+            <span class="badge-pill hero" style="font-size: 12px; padding: 6px 14px;">
+              ⏱ Weekly Reset: Every Monday
+            </span>
+            <small style="display: block; color: var(--text-secondary); margin-top: 4px;">Lifetime points & badges preserved</small>
+          </div>
+        </div>
+
+        <!-- Hero Points Rules Grid -->
+        <div class="points-rules-grid">
+          <div class="rule-card">
+            <div class="rule-icon" style="background: #EFF6FF; color: #2563EB;">📦</div>
+            <div>
+              <span class="rule-pts">+5 Points</span>
+              <span class="rule-desc">Reporting a found item</span>
+            </div>
+          </div>
+          <div class="rule-card">
+            <div class="rule-icon" style="background: #ECFDF5; color: #059669;">🤝</div>
+            <div>
+              <span class="rule-pts">+50 Points</span>
+              <span class="rule-desc">Verified successful handover</span>
+            </div>
+          </div>
+          <div class="rule-card">
+            <div class="rule-icon" style="background: #FEF3C7; color: #D97706;">★</div>
+            <div>
+              <span class="rule-pts">+10 Points</span>
+              <span class="rule-desc">Positive verified rating (4-5★)</span>
+            </div>
+          </div>
+          <div class="rule-card">
+            <div class="rule-icon" style="background: #F5F3FF; color: #7C3AED;">💡</div>
+            <div>
+              <span class="rule-pts">+10 Points</span>
+              <span class="rule-desc">Helping identify matched item</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Leaderboard Table -->
+        <div class="table-panel">
+          <div class="table-header-bar">
+            <h3>Active Weekly Leaderboard Rankings</h3>
+            <span style="font-size: 11px; color: var(--text-secondary); font-weight: 600;">Updated in real time</span>
+          </div>
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th style="width: 60px;">Rank</th>
+                <th>Student Member</th>
+                <th>Weekly Honor Badge</th>
+                <th>Successful Returns</th>
+                <th>Average Rating</th>
+                <th>Weekly Points</th>
+                <th>Lifetime Points</th>
+              </tr>
+            </thead>
+            <tbody id="heroesLeaderboardBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ==========================================================
+           3. USER DASHBOARD VIEW (PERSONAL LISTINGS & CLAIMS)
+           ========================================================== -->
+      <div id="userDashboardView" class="dashboard-view">
+        <div class="dash-header">
+          <div>
+            <span class="eyebrow">PERSONAL PORTAL</span>
+            <h2>My Campus Dashboard</h2>
+            <p>Manage your reports, track claim handovers, view your Hero points, and rate completed returns.</p>
+          </div>
+          <button class="btn btn-primary" id="dashReportBtn">+ Report New Item</button>
+        </div>
+
+        <!-- User Stats Preview Row -->
+        <div class="metrics-grid" style="margin-bottom: 22px;">
+          <div class="metric-card">
+            <span class="metric-label">Hero Points</span>
+            <div class="metric-val" id="userDashPoints">0</div>
+            <span class="metric-sub" id="userDashWeeklyPts">0 weekly points</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Items Returned</span>
+            <div class="metric-val" id="userDashReturns">0</div>
+            <span class="metric-sub">Verified handovers</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Average Rating</span>
+            <div class="metric-val" id="userDashRating">5.0 ★</div>
+            <span class="metric-sub">From recipients</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Active Badge</span>
+            <div class="metric-val" style="font-size: 20px; padding-top: 6px;" id="userDashBadge">Helpful Student</div>
+            <span class="metric-sub">Campus Title</span>
+          </div>
+        </div>
+
+        <div class="dash-tabs">
+          <button class="dash-tab-btn active" id="userTabItems">My Reported Items (<span id="userItemsCount">0</span>)</button>
+          <button class="dash-tab-btn" id="userTabClaims">My Submitted Claims (<span id="userClaimsCount">0</span>)</button>
+        </div>
+
+        <!-- Tab 1: My Reported Items -->
+        <div id="userItemsTabContent">
+          <div class="items-grid" id="userItemsGrid">
+            <!-- Dynamically populated -->
+          </div>
+          <div id="userItemsEmpty" class="empty-state" style="display: none;">
+            <span>📦</span>
+            <h3>No reported listings yet</h3>
+            <p>You haven't reported any lost or found items yet.</p>
+            <button class="btn btn-primary" id="userReportNowBtn">Report an item now</button>
+          </div>
+        </div>
+
+        <!-- Tab 2: My Submitted Claims -->
+        <div id="userClaimsTabContent" style="display: none;">
+          <div class="table-panel">
+            <div class="table-header-bar">
+              <h3>My Submitted Ownership Claims</h3>
+            </div>
+            <table class="portal-table">
+              <thead>
+                <tr>
+                  <th>Item Title</th>
+                  <th>Claim Date</th>
+                  <th>Claim Status</th>
+                  <th>Handover Status</th>
+                  <th>Feedback Rating</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="userClaimsTableBody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+            <div id="userClaimsEmpty" class="empty-state" style="display: none;">
+              <span>📝</span>
+              <h3>No claims submitted</h3>
+              <p>You haven't submitted any ownership claims on found items.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==========================================================
+           4. ADMIN DASHBOARD VIEW (METRICS & MODERATION)
+           ========================================================== -->
+      <div id="adminDashboardView" class="dashboard-view">
+        <div class="dash-header">
+          <div>
+            <span class="eyebrow">CAMPUS ADMINISTRATION & SECURITY</span>
+            <h2>Lost & Found Control Center</h2>
+            <p>System metrics, recovery rates, claim authorizations, handover confirmations, and audit logs.</p>
+          </div>
+          <button class="btn btn-outline" id="refreshStatsBtn">↻ Refresh Metrics</button>
+        </div>
+
+        <!-- Metrics Cards -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-label">Total Listings</span>
+            <div class="metric-val" id="metricTotal">0</div>
+            <span class="metric-sub">Campus catalog</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Items Returned (Received)</span>
+            <div class="metric-val" id="metricClaimed">0</div>
+            <span class="metric-sub" id="metricRateSub">0% recovery rate</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Pending Claims</span>
+            <div class="metric-val" id="metricPending">0</div>
+            <span class="metric-sub">Awaiting verification</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Weekly Hero Points</span>
+            <div class="metric-val" id="metricHeroPts">0</div>
+            <span class="metric-sub">Awarded this week</span>
+          </div>
+        </div>
+
+        <!-- SVG Analytics Charts -->
+        <div class="charts-grid">
+          <div class="chart-panel">
+            <h3>Monthly Activity & Recovery Curve</h3>
+            <p>Blue line represents reports filed; Darker line tracks items successfully returned.</p>
+            <div id="trendChartContainer" style="min-height: 220px;"></div>
+          </div>
+          <div class="chart-panel">
+            <h3>Category Breakdown</h3>
+            <p>Distribution of items across campus categories.</p>
+            <div id="categoryBarsContainer" style="padding-top: 10px;"></div>
+          </div>
+        </div>
+
+        <!-- All Claims Moderation Table -->
+        <div class="table-panel">
+          <div class="table-header-bar">
+            <h3>Campus Claims & Handover Verification</h3>
+            <select id="adminClaimFilter" style="font-size: 11px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);">
+              <option value="all">All Statuses</option>
+              <option value="pending" selected>Pending Review</option>
+              <option value="approved">Approved (Awaiting Handover)</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Claimant</th>
+                <th>Proof of Ownership</th>
+                <th>Claim Status</th>
+                <th>Handover</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminClaimsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- All Items Moderation Table -->
+        <div class="table-panel">
+          <div class="table-header-bar">
+            <h3>All Campus Listings Moderation</h3>
+          </div>
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Building / Floor</th>
+                <th>Location Details</th>
+                <th>Reported By</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminItemsTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Anti-Cheat Reward Audit Log (Admin Only) -->
+        <div class="table-panel">
+          <div class="table-header-bar">
+            <h3>Hero Points Audit Log (Anti-Cheat & Activity Log)</h3>
+            <span style="font-size: 11px; color: var(--text-secondary);">Verified reward transactions</span>
+          </div>
+          <table class="portal-table">
+            <thead>
+              <tr>
+                <th>Date / Time</th>
+                <th>Student Member</th>
+                <th>Action</th>
+                <th>Points</th>
+                <th>Item / Reference</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody id="adminAuditLogBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <a class="brand footer-brand" href="#">
+        <span class="brand-mark">F</span>
+        <span>FINDORA</span>
+      </a>
+      <p>Simple, reliable campus lost & found management.</p>
+      <div class="footer-meta">
+        <span>Campus Lost & Found Portal · Sai University School of Computing & Data Science</span>
+        <span>Web Technology & Internet Programming · Academic Year 2026–2027</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ==========================================================
+       MODALS & DIALOGS
+       ========================================================== -->
+
+  <!-- AUTHENTICATION MODAL -->
+  <dialog id="authDialog" class="modal-dialog">
+    <button class="dialog-close" id="closeAuthDialog" aria-label="Close">×</button>
+    <div class="dialog-header">
+      <div class="eyebrow"><span class="pulse-dot"></span> SECURE ACCESS</div>
+      <h2 id="authModalTitle">Welcome to FINDORA</h2>
+      <p>Sign in to report belongings, submit claims, and track Hero points.</p>
+    </div>
+
+    <!-- Auth Tabs -->
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" id="tabLogin">Log In</button>
+      <button type="button" class="auth-tab" id="tabRegister">Create Account</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Campus Email</label>
+        <input type="email" id="loginEmail" placeholder="student@saiuniversity.edu.in" required />
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Log In to FINDORA</button>
+    </form>
+
+    <!-- Register Form -->
+    <form id="registerForm" style="display: none;">
+      <div class="form-group">
+        <label for="regName">Full Name</label>
+        <input type="text" id="regName" placeholder="e.g. Diya Krishnan" required />
+      </div>
+      <div class="form-group">
+        <label for="regEmail">Campus Email</label>
+        <input type="email" id="regEmail" placeholder="diya.k@saiuniversity.edu.in" required />
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" placeholder="Min 6 characters" required />
+        </div>
+        <div class="form-group">
+          <label for="regRole">Role</label>
+          <select id="regRole">
+            <option value="student">Student</option>
+            <option value="admin">Campus Admin / Staff</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="regCampusId">Campus ID</label>
+          <input type="text" id="regCampusId" placeholder="SAI-2026-CS088" />
+        </div>
+        <div class="form-group">
+          <label for="regPhone">Phone (Optional)</label>
+          <input type="tel" id="regPhone" placeholder="+91 94567 89012" />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Create My Account</button>
+    </form>
+
+    <!-- Quick Demo Accounts -->
+    <div class="demo-logins-box">
+      <span>1-Click Evaluator Accounts</span>
+      <div class="demo-btns-wrap">
+        <button type="button" class="btn btn-outline btn-sm" id="demoStudentBtn">👤 Demo Student (Aarav)</button>
+        <button type="button" class="btn btn-outline btn-sm" id="demoAdminBtn">🛡️ Demo Admin (Security)</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- REPORT AN ITEM MODAL (WITH STRUCTURED BUILDING, FLOOR & LOCATION TYPE) -->
+  <dialog id="reportDialog" class="modal-dialog wide">
+    <button class="dialog-close" id="closeReportDialog" aria-label="Close">×</button>
+    <div class="dialog-header">
+      <div class="eyebrow"><span class="pulse-dot"></span> REPORT ENTRY</div>
+      <h2>Report a Campus Item</h2>
+      <p>Select the building code, floor, and location type to help locate the item accurately.</p>
+    </div>
+
+    <!-- Type Switcher -->
+    <div class="type-switcher">
+      <button type="button" class="type-btn active lost" id="typeLostBtn">I Lost Something</button>
+      <button type="button" class="type-btn found" id="typeFoundBtn">I Found Something (+5 Hero Pts)</button>
+    </div>
+
+    <form id="reportForm">
+      <input type="hidden" id="reportTypeInput" value="lost" />
+
+      <div class="form-group">
+        <label for="itemTitleInput">Item Title *</label>
+        <input type="text" id="itemTitleInput" placeholder="e.g. Wireless Apple AirPods Pro with Navy Case" required />
+      </div>
+
+      <!-- Structured Campus Location Group -->
+      <div class="form-row three-col">
+        <div class="form-group">
+          <label for="itemBuildingInput">Campus Building *</label>
+          <select id="itemBuildingInput" required>
+            <option value="AB-1">AB-1 (Academic Block 1)</option>
+            <option value="AB-2">AB-2 (Academic Block 2)</option>
+            <option value="AB-3">AB-3 (Academic Block 3)</option>
+            <option value="Central Library">Central Library</option>
+            <option value="Dining Commons">Dining Commons</option>
+            <option value="Sports Complex">Sports Complex</option>
+            <option value="Student Hostels">Student Hostels</option>
+            <option value="Auditorium">Auditorium</option>
+            <option value="Other">Other Area</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="itemFloorInput">Floor *</label>
+          <select id="itemFloorInput" required>
+            <option value="Ground">Ground Floor</option>
+            <option value="First">First Floor</option>
+            <option value="Second">Second Floor</option>
+            <option value="Third">Third Floor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="itemLocationTypeInput">Specific Location Type *</label>
+          <select id="itemLocationTypeInput" required>
+            <option value="Classroom">Classroom</option>
+            <option value="Laboratory">Laboratory</option>
+            <option value="Corridor">Corridor</option>
+            <option value="Library">Library</option>
+            <option value="Cafeteria">Cafeteria</option>
+            <option value="Other">Other Specific Spot</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="itemLocationInput">Room Number / Specific Spot *</label>
+          <input type="text" id="itemLocationInput" placeholder="e.g. Room 204, Left Side Bench, Desk 12" required />
+        </div>
+        <div class="form-group">
+          <label for="itemCategoryInput">Category *</label>
+          <select id="itemCategoryInput" required>
+            <option value="Electronics">Electronics</option>
+            <option value="Accessories">Accessories</option>
+            <option value="Books">Books & Notes</option>
+            <option value="ID & Cards">ID & Cards</option>
+            <option value="Clothing">Clothing</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="itemDateInput">Date Lost/Found *</label>
+          <input type="date" id="itemDateInput" required />
+        </div>
+        <div class="form-group">
+          <label for="itemSecretInput">Secret Verification Mark (Optional)</label>
+          <input type="text" id="itemSecretInput" placeholder="e.g. Initials inside case, specific scratch (kept confidential)" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="itemDescriptionInput">Detailed Description *</label>
+        <textarea id="itemDescriptionInput" rows="3" placeholder="Provide color, brand, condition, stickers, contents, or noticeable marks..." required></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="itemImageFile">Upload Photo (Optional)</label>
+          <input type="file" id="itemImageFile" accept="image/*" />
+        </div>
+        <div class="form-group">
+          <label for="itemImageUrl">Or Image Web URL</label>
+          <input type="url" id="itemImageUrl" placeholder="https://images.unsplash.com/..." />
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+        <button type="button" class="btn btn-quiet" id="cancelReportBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="submitReportBtn">Submit Campus Report</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ITEM DETAILS & CLAIM ACTION MODAL -->
+  <dialog id="itemDetailDialog" class="modal-dialog wide">
+    <button class="dialog-close" id="closeDetailDialog" aria-label="Close">×</button>
+    <div id="itemDetailContent">
+      <!-- Dynamically filled -->
+    </div>
+  </dialog>
+
+  <!-- SUBMIT CLAIM MODAL -->
+  <dialog id="claimDialog" class="modal-dialog">
+    <button class="dialog-close" id="closeClaimDialog" aria-label="Close">×</button>
+    <div class="dialog-header">
+      <div class="eyebrow"><span class="pulse-dot"></span> OWNERSHIP VERIFICATION</div>
+      <h2>Claim This Item</h2>
+      <p>Submit proof of ownership. The finder or campus security will evaluate your claim.</p>
+    </div>
+
+    <form id="claimForm">
+      <input type="hidden" id="claimItemId" />
+
+      <div class="form-group">
+        <label>Claiming Listing:</label>
+        <div id="claimItemPreview" style="font-weight: 700; color: var(--primary-blue); padding: 9px 13px; background: var(--primary-blue-light); border-radius: 8px; font-size: 13px; border: 1px solid var(--primary-blue-subtle);"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="claimProofText">Proof of Ownership Description *</label>
+        <textarea id="claimProofText" rows="4" placeholder="Describe unique identifying features, serial number, scratch marks, purchase date, or contents of the item..." required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="claimVerificationAnswer">Answer to Secret Verification Mark / Question</label>
+        <input type="text" id="claimVerificationAnswer" placeholder="e.g. Wallpaper, initial engravings, ID number suffix" />
+        <small>If the finder provided secret verification details, provide your answer here.</small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="claimPhone">Contact Phone Number *</label>
+          <input type="tel" id="claimPhone" placeholder="+91 98765 43210" required />
+        </div>
+        <div class="form-group">
+          <label for="claimProofFile">Upload Proof Photo / Receipt</label>
+          <input type="file" id="claimProofFile" accept="image/*" />
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+        <button type="button" class="btn btn-quiet" id="cancelClaimBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="submitClaimBtn">Submit Ownership Claim</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- REVIEW RECEIVED CLAIMS & HANDOVER DIALOG -->
+  <dialog id="receivedClaimsDialog" class="modal-dialog wide">
+    <button class="dialog-close" id="closeReceivedClaimsDialog" aria-label="Close">×</button>
+    <div class="dialog-header">
+      <div class="eyebrow"><span class="pulse-dot"></span> CLAIMS REVIEW & HANDOVER</div>
+      <h2>Received Claims for Listing</h2>
+      <p>Review claimant proof and confirm handover once the item is returned.</p>
+    </div>
+    <div id="receivedClaimsList">
+      <!-- Dynamically filled -->
+    </div>
+  </dialog>
+
+  <!-- RATING & VERIFIED FEEDBACK MODAL (CLAIMANT ONLY) -->
+  <dialog id="feedbackDialog" class="modal-dialog">
+    <button class="dialog-close" id="closeFeedbackDialog" aria-label="Close">×</button>
+    <div class="dialog-header">
+      <div class="eyebrow"><span class="pulse-dot"></span> VERIFIED RETURN FEEDBACK</div>
+      <h2>Rate Your Return Experience</h2>
+      <p>Recognize the finder who helped return your property. High ratings award bonus Hero points!</p>
+    </div>
+
+    <form id="feedbackForm">
+      <input type="hidden" id="feedbackClaimId" />
+
+      <div class="form-group" style="text-align: center; margin: 18px 0;">
+        <label style="display: block; font-size: 13px; margin-bottom: 8px;">Select Star Rating (1 to 5 Stars):</label>
+        <div class="star-rating large" id="starSelector" style="justify-content: center; gap: 8px;">
+          <button type="button" class="star-btn" data-star="1">★</button>
+          <button type="button" class="star-btn" data-star="2">★</button>
+          <button type="button" class="star-btn" data-star="3">★</button>
+          <button type="button" class="star-btn" data-star="4">★</button>
+          <button type="button" class="star-btn" data-star="5">★</button>
+        </div>
+        <input type="hidden" id="feedbackRatingInput" value="5" />
+      </div>
+
+      <div class="form-group">
+        <label for="feedbackTextInput">Feedback / Appreciation Message (Optional)</label>
+        <textarea id="feedbackTextInput" rows="3" placeholder="Thank the finder or note details about the quick handover..."></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px;">
+        <button type="button" class="btn btn-quiet" id="cancelFeedbackBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="submitFeedbackBtn">Submit Rating</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer"></div>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sai University — FINDORA Postman API Testing Evidence</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 40px; color: #1e293b; line-height: 1.5; background: #f8fafc; }
+    .container { max-width: 1000px; margin: auto; background: #ffffff; padding: 36px 44px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+    .header { border-bottom: 2px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
+    .header h1 { margin: 0 0 6px; font-size: 24px; color: #1e3a5f; }
+    .header p { margin: 2px 0; color: #64748b; font-size: 13px; }
+    .badge-pass { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+    .stat-card { background: #f1f6fd; border: 1px solid #dbeafe; padding: 14px; border-radius: 8px; text-align: center; }
+    .stat-card strong { display: block; font-size: 24px; color: #2563eb; }
+    .stat-card span { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 10px; }
+    th { background: #1e3a5f; color: #ffffff; text-align: left; padding: 10px 12px; font-weight: 600; }
+    td { padding: 9px 12px; border-bottom: 1px solid #e2e8f0; }
+    tr:nth-child(even) { background: #f8fafc; }
+    .footer { margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 14px; font-size: 11px; color: #94a3b8; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>SAI UNIVERSITY — SCHOOL OF COMPUTING AND DATA SCIENCE</h1>
+      <p><strong>Course:</strong> Web Technology and Internet Programming (2026–2027) | <strong>Project:</strong> FINDORA Campus Lost & Found</p>
+      <p><strong>Deliverable 4:</strong> Postman API Verification & Test Case Evidence</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><strong>24</strong><span>Total Tests</span></div>
+      <div class="stat-card"><strong>24</strong><span>Passed (100%)</span></div>
+      <div class="stat-card"><strong>0</strong><span>Failed</span></div>
+      <div class="stat-card"><strong>HTTP/JSON</strong><span>REST Conformance</span></div>
+    </div>
+
+    <h2>Test Suite Execution Matrix</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>HTTP Method & Route</th>
+          <th>Test Objective</th>
+          <th>Expected Status</th>
+          <th>Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>01</td><td>GET /api/health</td><td>System Availability & Version</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>02</td><td>POST /api/auth/demo/student</td><td>Student Token Issue</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>03</td><td>POST /api/auth/demo/admin</td><td>Admin Token Issue</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>04</td><td>POST /api/auth/register</td><td>Validation of Incomplete Payload</td><td>400 Bad Request</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>05</td><td>GET /api/items/my-items</td><td>Unauthorized Access Blocking</td><td>401 Unauthorized</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>06</td><td>GET /api/claims/admin/all</td><td>Role-Based Access Guard</td><td>403 Forbidden</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>07</td><td>GET /api/items</td><td>Search & Campus Building Filter</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>08</td><td>POST /api/items</td><td>Report Found Item with AB-1/Floor</td><td>201 Created</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>09</td><td>GET /api/items/:id</td><td>Item Details & Smart Match Engine</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>10</td><td>POST /api/claims</td><td>Submit Ownership Claim with Proof</td><td>201 Created</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>11</td><td>PATCH /api/claims/:id/status</td><td>Claim Approval & State Sync</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>12</td><td>GET /api/stats/dashboard</td><td>Recovery Rate Analytics</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>13</td><td>GET /api/items?building=AB-1&floor=Ground</td><td>Multi-tier Location Query</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>14</td><td>PATCH /api/claims/:id/handover</td><td>Confirm Handover & Award 50 Pts</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>15</td><td>PATCH /api/claims/:id/handover</td><td>Duplicate Handover Exploit Prevention</td><td>400 Bad Request</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>16</td><td>POST /api/claims/:id/feedback</td><td>Submit 5-Star Feedback (+10 Pts)</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>17</td><td>POST /api/claims/:id/feedback</td><td>Enforce One Rating Per Return</td><td>400 Bad Request</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>18</td><td>GET /api/heroes/leaderboard</td><td>Weekly Leaderboard & Campus Badges</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>19</td><td>GET /api/heroes/admin/logs</td><td>Admin Anti-Cheat Reward Audit Trail</td><td>200 OK</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>20</td><td>UI Validation</td><td>Browse Online Mode & Disclaimer</td><td>DOM Check</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>21</td><td>External Search (Google)</td><td>Dynamic Google Search URL Construction</td><td>URI Encoded</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>22</td><td>External Search (Bing)</td><td>Dynamic Bing Search URL Construction</td><td>URI Encoded</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>23</td><td>Suggested Searches</td><td>5 Presets & Keyless Privacy Safeguards</td><td>Security Check</td><td><span class="badge-pass">PASS</span></td></tr>
+        <tr><td>24</td><td>Database Isolation</td><td>Zero Mutation from External Searches</td><td>DB Check</td><td><span class="badge-pass">PASS</span></td></tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p>FINDORA — Sai University Campus Lost & Found Portal | Automated Test Harness: node postman/run-tests.js</p>
+    </div>
+  </div>
+</body>
+</html>
